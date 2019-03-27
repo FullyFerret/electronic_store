@@ -19,6 +19,17 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
+    public function listAll() {
+        return $this->createQueryBuilder('c')
+            ->select("c.id,
+                      c.name AS category,
+                      DATE_FORMAT(c.created_at, '%Y-%m-%dT%TZ') AS created_at,
+                      DATE_FORMAT(c.modified_at, '%Y-%m-%dT%TZ') AS modified_at")
+            ->orderBy("c.created_at", "DESC")
+            ->getQuery()
+            ->getScalarResult();
+    }
+
     // /**
     //  * @return Category[] Returns an array of Category objects
     //  */

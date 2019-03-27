@@ -30,8 +30,13 @@ class ProductController extends AbstractFOSRestController
      */
     public function listAllProductsAction(EntityManagerInterface $em)
     {
-        $products = $em->getRepository(Product::class)->listAll();
-        return new JSendSuccessResponse($products);
+        try {
+            $products = $em->getRepository(Product::class)->listAll();
+            return new JSendSuccessResponse($products);
+        }
+        catch(\Exception $e) {
+            return new JSendFailResponse("error");
+        }
     }
 
     /**

@@ -22,7 +22,8 @@ class ProductRepository extends ServiceEntityRepository
 
     public function listAll() {
         return $this->createQueryBuilder('p')
-            ->select("p.name AS product, 
+            ->select("p.id,
+                      p.name AS product, 
                       c.name AS category,
                       p.sku, 
                       p.price, 
