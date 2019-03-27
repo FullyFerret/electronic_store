@@ -23,13 +23,13 @@ class ProductRepository extends ServiceEntityRepository
     public function listAll() {
         return $this->createQueryBuilder('p')
             ->select("p.id,
-                      p.name AS product, 
+                      p.name, 
                       c.name AS category,
                       p.sku, 
                       p.price, 
                       p.quantity,
-                      DATE_FORMAT(p.created_at, '%Y-%m-%dT%TZ') AS created_at,
-                      DATE_FORMAT(p.modified_at, '%Y-%m-%dT%TZ') AS modified_at")
+                      DATE_FORMAT(p.created_at, '%Y-%m-%dT%T+0000') AS created_at,
+                      DATE_FORMAT(p.modified_at, '%Y-%m-%dT%T+0000') AS modified_at")
             ->leftJoin("p.category", "c")
             ->orderBy("p.created_at", "DESC")
             ->getQuery()

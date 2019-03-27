@@ -22,9 +22,9 @@ class CategoryRepository extends ServiceEntityRepository
     public function listAll() {
         return $this->createQueryBuilder('c')
             ->select("c.id,
-                      c.name AS category,
-                      DATE_FORMAT(c.created_at, '%Y-%m-%dT%TZ') AS created_at,
-                      DATE_FORMAT(c.modified_at, '%Y-%m-%dT%TZ') AS modified_at")
+                      c.name AS name,
+                      DATE_FORMAT(c.created_at, '%Y-%m-%dT%T+0000') AS created_at,
+                      DATE_FORMAT(c.modified_at, '%Y-%m-%dT%T+0000') AS modified_at")
             ->orderBy("c.created_at", "DESC")
             ->getQuery()
             ->getScalarResult();

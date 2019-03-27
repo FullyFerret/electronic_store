@@ -92,7 +92,7 @@ class Product
     {
         return [
             "id" => $this->id,
-            "product" => $this->name,
+            "name" => $this->name,
             "category" => empty($this->category) ? null : $this->category->getName(),
             "sku" => $this->sku,
             "price" => $this->price,
