@@ -29,6 +29,8 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Get("/products")
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     public function listAllProductsAction(EntityManagerInterface $em)
     {
@@ -37,7 +39,7 @@ class ProductController extends AbstractFOSRestController
             return new JSendSuccessResponse($products);
         }
         catch(\Exception $e) {
-            return new JSendFailResponse("error");
+            throw $e;
         }
     }
 
@@ -47,10 +49,17 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Get("/products/{id}", requirements={"id" = "\d+"})
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function getProductAction(Product $product, Request $request, EntityManagerInterface $em)
     {
-        return new JSendSuccessResponse($product->serialized());
+        try {
+            return new JSendSuccessResponse($product->serialized());
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -86,7 +95,7 @@ class ProductController extends AbstractFOSRestController
         $data = json_decode($request->getContent(), true);
 
         if (empty($data)) {
-            return new JSendFailResponse("No data submitted", Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse("You must specify at least one product property value to update", Response::HTTP_BAD_REQUEST);
         }
 
         $categoryName = empty($data['category']) ? null : $data['category'];
@@ -146,7 +155,7 @@ class ProductController extends AbstractFOSRestController
         $data = json_decode($request->getContent(), true);
 
         if (empty($data)) {
-            return new JSendFailResponse("No data submitted", Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse("Cannot submit empty product", Response::HTTP_BAD_REQUEST);
         }
 
         $categoryName = empty($data['category']) ? null : $data['category'];

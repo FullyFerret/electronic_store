@@ -27,6 +27,8 @@ class CategoryController extends AbstractFOSRestController
      * @Rest\Get("/categories")
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     public function listAllCategoriesAction(EntityManagerInterface $em)
     {
@@ -35,7 +37,7 @@ class CategoryController extends AbstractFOSRestController
             return new JSendSuccessResponse($categories);
         }
         catch(\Exception $e) {
-            return new JSendFailResponse("error");
+            throw $e;
         }
     }
 }
