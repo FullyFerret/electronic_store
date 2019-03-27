@@ -129,8 +129,8 @@ output:
 php bin/console server:run
 ```
 
-2)
-✅ ✅ You're good to go for making REST API requests
+
+#### ✅ You're good to go for making REST API requests.
 ___
 
 ## Senior PHP Developer Challenge
