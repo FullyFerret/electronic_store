@@ -22,6 +22,10 @@ DELETE /api/products/{id}
 
 ## Instructions
 
+### .env file
+
+Adjust `DATABASE_URL` value accodingly with your mysql url.
+
 ### Install dependencies/Setting up:
 1) After pulling this repo, go to root project directory and run:
 ```
@@ -53,7 +57,7 @@ bin/console fos:user:create BobbyFischer betty@foo.com password1
 
 ### /create-client to get access_token for OAuth authenticated requests:
 
-Note. grant_type values below should have the literal value "password", everything else is uniquely generated from each preceding step and must be replaced.
+Note. grant_type values should have the literal value "password"; everything else should be replaced using the corresponding values generated from each preceding step.
 
 1. Create client by POSTing to `/create-client` with the following body:
 ```
@@ -91,7 +95,7 @@ output:
 
 ## Seeding product data
 
-1) Make a POST request to `/api/products` for each product below (using Postman or another tool) to populate database with products and their associated categories:
+1) Make POST requests to `/api/products` for each of the products below (using Postman or another tool). This will populate your database with products and their associated categories:
 
 ```
 {
