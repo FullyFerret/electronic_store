@@ -4,6 +4,9 @@
 *
 *
 
+## Assumptions
+* Categories may be created from creating or updating product category details.
+
 ___
 
 ## Senior PHP Developer Challenge
