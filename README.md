@@ -1,12 +1,15 @@
-# electronic_store
-TalentNet Code Challenges
+# electronic_store (TalentNet Code Challenge)
 
 
 ## Instructions for seeding
 *
 *
 
+___
+
+
 ## Original Requirements
+
 
 ## Senior PHP Developer Challenge
 
