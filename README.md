@@ -1,5 +1,4 @@
 # TalentNet Code Challenge (electronic_store API)
-#### Completed by Eric Amshukov
 
 ## Instructions for seeding
 *
