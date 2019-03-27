@@ -36,7 +36,7 @@ For example:
 composer install
 ```
 
-2) Create database
+2) Create database (make sure MySQL is running)
 ```
 bin/console doctrine:database:create
 ```
