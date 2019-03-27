@@ -24,7 +24,11 @@ DELETE /api/products/{id}
 
 ### .env file
 
-Adjust `DATABASE_URL` value accodingly with your mysql url.
+Create a `.env` file at the root of the project directory and set the following key/value pair (adjusted with your full MySQL url).
+
+For example:
+
+`DATABASE_URL=mysql://root@127.0.0.1/electronics_store`
 
 ### Install dependencies/Setting up:
 1) After pulling this repo, go to root project directory and run:
