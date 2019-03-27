@@ -5,7 +5,7 @@
 *
 
 ## Assumptions
-* Categories may be created from creating or updating product category details.
+* Product creation/updates can yield new categories.
 
 ___
 
