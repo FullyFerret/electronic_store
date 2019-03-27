@@ -61,6 +61,11 @@ bin/console fos:user:create BobbyFischer bobby@foo.com password1
 bin/console fos:user:create BobbyFischer betty@foo.com password1
 ```
 
+### Start symfony server for testing
+
+```
+php bin/console server:run
+```
 
 ### /create-client to get access_token for OAuth authenticated requests:
 
@@ -133,11 +138,6 @@ output:
   "price": 1399.99,
   "quantity": 5
 }
-```
-### Start symfony server for testing
-1)
-```
-php bin/console server:run
 ```
 
 
