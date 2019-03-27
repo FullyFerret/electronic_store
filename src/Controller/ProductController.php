@@ -68,6 +68,8 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Delete("/products/{id}", requirements={"id" = "\d+"})
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function deleteProductAction(Product $product, EntityManagerInterface $em)
     {
@@ -77,7 +79,7 @@ class ProductController extends AbstractFOSRestController
             return new JSendSuccessResponse();
         }
         catch(\Exception $e) {
-            return new JSendFailResponse();
+            throw $e;
         }
     }
 
