@@ -1,5 +1,19 @@
 # TalentNet Code Challenge (electronic_store API)
 
+### Endpoints
+```
+POST /create-client
+
+GET /api/categories
+
+GET /api/products
+GET /api/products/{id}
+
+/* OAuth Authentication required (see below for guide) */
+POST /api/products
+PUT /api/products/{id}
+DELETE /api/products/{id}
+```
 ## Assumptions
 * Product creation/updates can yield new categories.
 
@@ -50,7 +64,9 @@ Note. grant_type values below should have the literal value "password", everythi
 ```
 
 2. Get `access_token` (`grant_type` should literally be "password", the rest you replace):
+
 input:
+
 ```
 {
 	  "client_id": "2_60lvo1hsrq4gkcc80w8cs8swgkk4c4ks0ok84sok84s0kc8c00",
@@ -71,7 +87,7 @@ output:
 }
 ```
 
-3. ✅ You can now put `access_token` into `Authorization: Bearer` for authenticated requests.
+3. You can now put `access_token` into `Authorization: Bearer` for authenticated requests.
 
 ## Seeding product data
 
@@ -107,21 +123,14 @@ output:
   "quantity": 5
 }
 ```
+### Start symfony server for testing
+1)
+```
+php bin/console server:run
+```
 
-### Endpoints
-
-GET /api/products
-POST /api/products
-
-GET /api/products/{id}
-PUT /api/products/{id}
-DELETE /api/products/{id}
-
-GET /api/categories
-
-POST /create-client
-
-
+2)
+✅ ✅ You're good to go for making REST API requests
 ___
 
 ## Senior PHP Developer Challenge
