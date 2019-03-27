@@ -26,7 +26,7 @@ class Category
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="Product", mappedBy="category", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Product", mappedBy="category", cascade={"persist", "merge"})
      */
     private $products;
 

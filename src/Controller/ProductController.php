@@ -6,6 +6,8 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Form\CategoryType;
 use App\Form\ProductType;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Junker\Symfony\JSendFailResponse;
@@ -76,32 +78,57 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Put("/products/{id}", requirements={"id" = "\d+"})
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function updateProductAction(Product $product, Request $request, EntityManagerInterface $em)
     {
         $data = json_decode($request->getContent(), true);
 
+        if (empty($data)) {
+            return new JSendFailResponse("No data submitted", Response::HTTP_BAD_REQUEST);
+        }
+
+        $categoryName = empty($data['category']) ? null : $data['category'];
+
         $em->getConnection()->beginTransaction();
 
         try {
             /* Find existing category, else create a new one */
-            $category = $this->findOrCreateNewCategory($data['category'], $em);
-            unset($data['category']);
-            $product->setCategory($category);
+            $category = null;
+            if (!empty($categoryName)) {
+                $category = $this->findOrCreateNewCategory($categoryName, $em);
+                if ($category instanceof JSendFailResponse) {
+                    return $category;
+                }
+                else {
+                    $product->setCategory($category);
+                }
+                unset($data['category']);
+            }
 
             $form = $this->createForm(ProductType::class, $product);
 
+            /* Validate product update */
             $form->submit($data, false);
             if ($form->isSubmitted() && $form->isValid()) {
                 $em->flush();
                 $em->commit();
                 return new JSendSuccessResponse($product->serialized());
             }
-            return new JSendFailResponse($form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+        }
+        catch(UniqueConstraintViolationException $e) {
+            $em->rollback();
+            return new JSendFailResponse("Cannot change product name to one that already exists", Response::HTTP_BAD_REQUEST);
+        }
+        catch(DBALException $e) {
+            $em->rollback();
+            throw $e;
         }
         catch(\Exception $e) {
             $em->rollback();
-            return new JSendFailResponse("error", Response::HTTP_BAD_REQUEST);
+            throw $e;
         }
     }
 
@@ -111,25 +138,36 @@ class ProductController extends AbstractFOSRestController
      * @Rest\Post("/products")
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function postProductAction(Request $request, EntityManagerInterface $em)
     {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return new JSendFailResponse("No data submitted", Response::HTTP_BAD_REQUEST);
+        }
+
+        $categoryName = empty($data['category']) ? null : $data['category'];
+
         $em->getConnection()->beginTransaction();
 
         try {
-            $data = json_decode($request->getContent(), true);
-            $categoryName = $data['category'];
-
-            /* Find existing category, else create a new one */
-            $category = null;
-            if (!empty($categoryName))  {
-                $category = $this->findOrCreateNewCategory($categoryName, $em);
-                unset($data['category']);
-            }
-
             /* Create new product */
             $product = new Product();
-            $product->setCategory($category);
+
+            /* Find existing category, else create a new one */
+            if (!empty($categoryName)) {
+                $category = $this->findOrCreateNewCategory($categoryName, $em);
+                if ($category instanceof JSendFailResponse) {
+                    return $category;
+                }
+                else {
+                    $product->setCategory($category);
+                }
+                unset($data['category']);
+            }
 
             $form = $this->createForm(ProductType::class, $product);
 
@@ -141,11 +179,19 @@ class ProductController extends AbstractFOSRestController
                 $em->commit();
                 return new JSendSuccessResponse($product->serialized(), Response::HTTP_CREATED);
             }
-            return new JSendFailResponse($form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+        }
+        catch(UniqueConstraintViolationException $e) {
+            $em->rollback();
+            return new JSendFailResponse("Product name already exists, try updating with PUT", Response::HTTP_BAD_REQUEST);
+        }
+        catch(DBALException $e) {
+            $em->rollback();
+            throw $e;
         }
         catch(\Exception $e) {
             $em->rollback();
-            return new JSendFailResponse($form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+            throw $e;
         }
     }
 
@@ -167,7 +213,9 @@ class ProductController extends AbstractFOSRestController
             if ($form->isSubmitted() && $form->isValid()) {
                 $em->persist($category);
                 $em->flush();
+                return $category;
             }
+            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
         }
 
         return $category;

@@ -43,7 +43,7 @@ class Product
      * @var string
      *
      * @ORM\Column(type="string", length=5, nullable=true)
-     * @Assert\Length(max="5", maxMessage="Sku is too long")
+     * @Assert\Regex(pattern="/^A\d{4}$/", message="SKU must be in the format A#### (A followed by 4 digits)")
      */
     private $sku;
 
@@ -51,6 +51,8 @@ class Product
      * @var float
      *
      * @ORM\Column(type="float", nullable=true)
+     * @Assert\Type(type="float", message="Price must in currency format XX.XX")
+     * @Assert\GreaterThanOrEqual(value="0.00", message="Price cannot be less than 0.00")
      */
     private $price;
 
@@ -58,6 +60,7 @@ class Product
      * @var integer
      *
      * @ORM\Column(type="smallint")
+     * @Assert\GreaterThanOrEqual(value="0", message="Quantity cannot be less than 0")
      */
     private $quantity = 0;
 
