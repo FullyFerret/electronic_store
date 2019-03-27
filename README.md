@@ -31,17 +31,20 @@ For example:
 `DATABASE_URL=mysql://root@127.0.0.1/electronics_store`
 
 ### Install dependencies/Setting up:
-1) After pulling this repo, go to root project directory and run:
+1) Make sure composer is installed:
+https://getcomposer.org/download/
+
+2) After pulling this repo, go to root project directory and run:
 ```
 composer install
 ```
 
-2) Create database (make sure MySQL is running)
+3) Create database (make sure MySQL is running)
 ```
 bin/console doctrine:database:create
 ```
 
-3) Create tables
+4) Create tables
 ```
 bin/console doctrine:schema:create
 ```
@@ -58,6 +61,11 @@ bin/console fos:user:create BobbyFischer bobby@foo.com password1
 bin/console fos:user:create BobbyFischer betty@foo.com password1
 ```
 
+### Start symfony server for testing
+
+```
+php bin/console server:run
+```
 
 ### /create-client to get access_token for OAuth authenticated requests:
 
@@ -130,11 +138,6 @@ output:
   "price": 1399.99,
   "quantity": 5
 }
-```
-### Start symfony server for testing
-1)
-```
-php bin/console server:run
 ```
 
 
