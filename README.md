@@ -1,11 +1,126 @@
 # TalentNet Code Challenge (electronic_store API)
 
-## Instructions for seeding
-*
-*
-
 ## Assumptions
 * Product creation/updates can yield new categories.
+
+## Data Layer used
+* MySQL 5.6
+
+## Instructions
+
+### Install dependencies/Setting up:
+1) After pulling from this repo, go to root project directory and run:
+```
+composer install
+```
+
+2) Create database
+```
+bin/console doctrine:database:create
+```
+
+3) Create tables
+```
+bin/console doctrine:schema:create
+```
+
+
+### Create Users:
+
+1) cd to project directory root
+
+2) Run these commands to populate users:
+
+```
+bin/console fos:user:create BobbyFischer bobby@foo.com password1
+bin/console fos:user:create BobbyFischer betty@foo.com password1
+```
+
+
+### /create-client to get access_token for OAuth authenticated requests:
+
+Note. grant_type values below should have the literal value "password", everything else is uniquely generated from each preceding step and must be replaced.
+
+1. Create client by POSTing to `/create-client` with the following body:
+```
+{
+	"redirect-uri": "any-url-goes-here",
+	"grant-type": "password"
+}
+```
+
+2. Get `access_token` (`grant_type` should literally be "password", the rest you replace):
+input:
+```
+{
+	  "client_id": "2_60lvo1hsrq4gkcc80w8cs8swgkk4c4ks0ok84sok84s0kc8c00",
+    "client_secret": "slfw1z8ytxc008gck8s4cwcko04gc48kgw88o8o08w440kgwc",
+    "grant_type": "password",
+    "username": "foo",
+    "password": "bar"
+}
+```
+output:
+```
+{
+    "access_token": "NmY2ODUyZjE2YjJiYzBiYjdlMDdkNTIyMmI3MmI4NTE2Zjc3ZTY1YjhiYTg2ZTk4OTc4MGIxN2JmNTVjNjJiOA",
+    "expires_in": 86400,
+    "token_type": "bearer",
+    "scope": null,
+    "refresh_token": "NjVjYzliZmZkZWMzN2IxOTdkYTM5NmYxN2JkZWMwYTFhOTI0MjQ5NzRkMDgxMzVjMDIxZTk1NTRhOGNiZDA2MA"
+}
+```
+
+3. ✅ You can now put `access_token` into `Authorization: Bearer` for authenticated requests.
+
+## Seeding product data
+
+1) Make a POST request to `/api/products` for each product below (using Postman or another tool) to populate database with products and their associated categories:
+
+```
+{
+  "name": "Pong",
+  "category": "Games",
+  "sku": "A0001",
+  "price": 69.99,
+  "quantity": 20
+},
+{
+  "name": "GameStation 5",
+  "category": "Games",
+  "sku": "A0002",
+  "price": 269.99,
+  "quantity": 15
+},
+{
+  "name": "AP Oman PC - Aluminum",
+  "category": "Computers",
+  "sku": "A0003",
+  "price": 1399.99,
+  "quantity": 10
+},
+{
+  "name": "Fony UHD HDR 55\" 4k TV",
+  "category": "TVs and Accessories",
+  "sku": "A0004",
+  "price": 1399.99,
+  "quantity": 5
+}
+```
+
+### Endpoints
+
+GET /api/products
+POST /api/products
+
+GET /api/products/{id}
+PUT /api/products/{id}
+DELETE /api/products/{id}
+
+GET /api/categories
+
+POST /create-client
+
 
 ___
 
