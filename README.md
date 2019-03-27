@@ -3,6 +3,7 @@
 ### Endpoints
 ```
 POST /create-client
+POST /oauth/v2/token
 
 GET /api/categories
 
@@ -79,7 +80,7 @@ Note. grant_type values should have the literal value "password"; everything els
 }
 ```
 
-2. Get `access_token` (`grant_type` should literally be "password", the rest you replace):
+2. Get `access_token` by POSTing to `http://localhost:8083/oauth/v2/token` (`grant_type` should literally be "password", the rest you replace):
 
 input:
 
