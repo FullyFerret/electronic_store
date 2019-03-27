@@ -141,6 +141,8 @@ output:
 }
 ```
 
+## Unit tests
+Run at project root: `php bin/phpunit src/`
 
 #### ✅ You're good to go for making REST API requests.
 ___
