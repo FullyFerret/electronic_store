@@ -69,7 +69,7 @@ input:
 
 ```
 {
-	  "client_id": "2_60lvo1hsrq4gkcc80w8cs8swgkk4c4ks0ok84sok84s0kc8c00",
+    "client_id": "2_60lvo1hsrq4gkcc80w8cs8swgkk4c4ks0ok84sok84s0kc8c00",
     "client_secret": "slfw1z8ytxc008gck8s4cwcko04gc48kgw88o8o08w440kgwc",
     "grant_type": "password",
     "username": "foo",
