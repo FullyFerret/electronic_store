@@ -17,6 +17,7 @@ DELETE /api/products/{id}
 ```
 ## Assumptions
 * Product creation/updates can yield new categories.
+* SKU must be in the format A####
 
 ## Data Layer used
 * MySQL 5.6
