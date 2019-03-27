@@ -1,15 +1,11 @@
 # TalentNet Code Challenge (electronic_store API)
-
+#### Completed by Eric Amshukov
 
 ## Instructions for seeding
 *
 *
 
 ___
-
-
-## Original Requirements
-
 
 ## Senior PHP Developer Challenge
 
