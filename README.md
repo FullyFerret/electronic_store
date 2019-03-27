@@ -1,4 +1,4 @@
-# TalentNet Code Challenge (electronic_store)
+# TalentNet Code Challenge (electronic_store API)
 
 
 ## Instructions for seeding
