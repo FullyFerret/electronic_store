@@ -59,7 +59,7 @@ bin/console doctrine:schema:create
 
 ```
 bin/console fos:user:create BobbyFischer bobby@foo.com password1
-bin/console fos:user:create BobbyFischer betty@foo.com password1
+bin/console fos:user:create BettyRubble betty@foo.com password1
 ```
 
 ### Start symfony server for testing
