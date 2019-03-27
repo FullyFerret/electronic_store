@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Junker\Symfony\JSendFailResponse;
 use Junker\Symfony\JSendSuccessResponse;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,10 +31,13 @@ class CategoryController extends AbstractFOSRestController
      *
      * @throws \Exception
      */
-    public function listAllCategoriesAction(EntityManagerInterface $em)
+    public function listAllCategoriesAction(EntityManagerInterface $em, LoggerInterface $logger)
     {
+        $logger->info("Entering listAllCategoriesAction...");
         try {
             $categories = $em->getRepository(Category::class)->listAll();
+
+            $logger->info("Successfully retrieved all categories.");
             return new JSendSuccessResponse($categories);
         }
         catch(\Exception $e) {
