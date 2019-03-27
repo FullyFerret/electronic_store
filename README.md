@@ -23,7 +23,7 @@ DELETE /api/products/{id}
 ## Instructions
 
 ### Install dependencies/Setting up:
-1) After pulling from this repo, go to root project directory and run:
+1) After pulling this repo, go to root project directory and run:
 ```
 composer install
 ```
