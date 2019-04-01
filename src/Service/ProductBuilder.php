@@ -33,10 +33,11 @@ class ProductBuilder
         $this->setCategoryToNull = array_key_exists('category', $this->data) && $this->data['category'] === null;
 
         $this->logger->info("Checking for existing category by name...");
-        $categoryName = empty($data['category']) ? null : $data['category'];
+        $categoryName = empty($this->data['category']) ? null : $this->data['category'];
         $existingCategory = $this->setCategoryToNull ? null :
             $this->em->getRepository(Category::class)->findOneBy(["name" => $categoryName]);
         $this->data['category'] = $existingCategory === null ? $categoryName : null;
+
         return $existingCategory;
     }
 
@@ -53,6 +54,7 @@ class ProductBuilder
 
         /* Find existing category or add new category name to form */
         $existingCategory = $this->extractCategory();
+
         $this->logger->info("Creating Product form...");
         $form = $this->formFactory->create(ProductType::class, $product);
 
