@@ -3,6 +3,7 @@
 ### Endpoints
 ```
 POST /create-client
+POST /oauth/v2/token
 
 GET /api/categories
 
@@ -16,6 +17,7 @@ DELETE /api/products/{id}
 ```
 ## Assumptions
 * Product creation/updates can yield new categories.
+* SKU must be in the format A####
 
 ## Data Layer used
 * MySQL 5.6
@@ -58,7 +60,7 @@ bin/console doctrine:schema:create
 
 ```
 bin/console fos:user:create BobbyFischer bobby@foo.com password1
-bin/console fos:user:create BobbyFischer betty@foo.com password1
+bin/console fos:user:create BettyRubble betty@foo.com password1
 ```
 
 ### Start symfony server for testing
@@ -79,7 +81,7 @@ Note. grant_type values should have the literal value "password"; everything els
 }
 ```
 
-2. Get `access_token` (`grant_type` should literally be "password", the rest you replace):
+2. Get `access_token` by POSTing to `http://localhost:8083/oauth/v2/token` (`grant_type` should literally be "password", the rest you replace):
 
 input:
 
@@ -140,6 +142,8 @@ output:
 }
 ```
 
+## Unit tests
+Run at project root: `php bin/phpunit src/`
 
 #### ✅ You're good to go for making REST API requests.
 ___
