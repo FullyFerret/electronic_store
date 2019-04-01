@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Category as Category;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
+ * @UniqueEntity(fields={"name"}, message="A product already exists with this name.")
  * @ORM\HasLifecycleCallbacks()
  */
 class Product
@@ -34,7 +36,7 @@ class Product
     /**
      * @var Category
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="products")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="products", cascade={"persist"})
      * @ORM\JoinColumn(name="category", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $category;
@@ -52,6 +54,7 @@ class Product
      *
      * @ORM\Column(type="float", nullable=true)
      * @Assert\Type(type="float", message="Price must in currency format XX.XX")
+     * @Assert\Regex(pattern="/^\d+(\.\d{1,2})?$/", message="Price must be in currency format (ie. 9.95 or 5)")
      * @Assert\GreaterThanOrEqual(value="0.00", message="Price cannot be less than 0.00")
      */
     private $price;
@@ -60,6 +63,8 @@ class Product
      * @var integer
      *
      * @ORM\Column(type="smallint")
+     * @Assert\Type(type="integer", message="Quantity must be an integer")
+     * @Assert\NotNull(message="Quantity cannot be null")
      * @Assert\GreaterThanOrEqual(value="0", message="Quantity cannot be less than 0")
      */
     private $quantity = 0;
@@ -141,10 +146,10 @@ class Product
     }
 
     /**
-     * @param \App\Entity\Category $category
+     * @param \App\Entity\Category|null $category
      * @return Product|null
      */
-    public function setCategory(Category $category): ? self
+    public function setCategory(Category $category = null): ? self
     {
         $this->category = $category;
 

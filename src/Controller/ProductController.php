@@ -6,6 +6,7 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Form\CategoryType;
 use App\Form\ProductType;
+use App\Service\ProductBuilder;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,8 +16,10 @@ use Junker\Symfony\JSendSuccessResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PropertyAccess\Exception\InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Product controller.
@@ -102,54 +105,37 @@ class ProductController extends AbstractFOSRestController
      *
      * @throws \Exception
      */
-    public function updateProductAction(Product $product, Request $request, EntityManagerInterface $em, LoggerInterface $logger)
+    public function updateProductAction(Product $product, Request $request, EntityManagerInterface $em, ProductBuilder $productBuilder, LoggerInterface $logger)
     {
         $logger->info("Entering updateProductAction...");
         $data = json_decode($request->getContent(), true);
 
         if (empty($data)) {
             $logger->notice("Received empty product PUT data.");
-            return new JSendFailResponse("You must specify at least one product property value to update", Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse("You must specify at least one product property value to update.", Response::HTTP_BAD_REQUEST);
         }
-
-        $categoryName = empty($data['category']) ? null : $data['category'];
 
         $em->getConnection()->beginTransaction();
 
         try {
-            /* Find existing category, else create a new one */
-            $category = null;
-            if (!empty($categoryName)) {
-                $category = $this->findOrCreateNewCategory($categoryName, $em, $logger);
-                if ($category instanceof JSendFailResponse) {
-                    return $category;
-                }
-                else {
-                    $logger->info("Updated product category.");
-                    $product->setCategory($category);
-                }
-                unset($data['category']);
-            }
-
-            $logger->info("Creating Product update form...");
-            $form = $this->createForm(ProductType::class, $product);
-
-            /* Validate product update */
-            $logger->info("Validating Product properties update...");
-            $form->submit($data, false);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $em->flush();
-                $em->commit();
-
-                $logger->info("Product update flushed and commited.");
-                return new JSendSuccessResponse($product->serialized());
-            }
-            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+            $logger->info("Preparing to rebuild product...");
+            $productBuilder->build($data, $product);
+            $em->flush();
+            $em->commit();
+            return new JSendSuccessResponse($product->serialized(), Response::HTTP_OK);
+        }
+        catch(InvalidArgumentException $e) {
+            $em->rollback();
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        catch(ValidatorException $e) {
+            $em->rollback();
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         catch(UniqueConstraintViolationException $e) {
-            $logger->notice("Product update unique constraint violation");
+            $logger->notice("New product unique constraint violation");
             $em->rollback();
-            return new JSendFailResponse("Cannot change product name to one that already exists", Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         catch(DBALException $e) {
             $em->rollback();
@@ -170,7 +156,7 @@ class ProductController extends AbstractFOSRestController
      *
      * @throws \Exception
      */
-    public function postProductAction(Request $request, EntityManagerInterface $em, LoggerInterface $logger)
+    public function postProductAction(Request $request, EntityManagerInterface $em, ProductBuilder $productBuilder, LoggerInterface $logger)
     {
         $logger->info("Entering postProductAction...");
         $data = json_decode($request->getContent(), true);
@@ -180,48 +166,28 @@ class ProductController extends AbstractFOSRestController
             return new JSendFailResponse("Cannot submit empty product", Response::HTTP_BAD_REQUEST);
         }
 
-        $categoryName = empty($data['category']) ? null : $data['category'];
-
         $em->getConnection()->beginTransaction();
 
         try {
-            /* Create new product */
-            $logger->notice("Creating new Product entity...");
-            $product = new Product();
-
-            /* Find existing category, else create a new one */
-            if (!empty($categoryName)) {
-                $category = $this->findOrCreateNewCategory($categoryName, $em, $logger);
-                if ($category instanceof JSendFailResponse) {
-                    return $category;
-                }
-                else {
-                    $logger->info("Set product category.");
-                    $product->setCategory($category);
-                }
-                unset($data['category']);
-            }
-
-            $logger->info("Creating new Product form...");
-            $form = $this->createForm(ProductType::class, $product);
-
-            /* Validate product */
-            $logger->info("Validating new Product properties...");
-            $form->submit($data, false);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $em->persist($product);
-                $em->flush();
-                $em->commit();
-
-                $logger->info("New product flushed and commited.");
-                return new JSendSuccessResponse($product->serialized(), Response::HTTP_CREATED);
-            }
-            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
+            $logger->info("Preparing to build product...");
+            $product = $productBuilder->build($data);
+            $em->persist($product);
+            $em->flush();
+            $em->commit();
+            return new JSendSuccessResponse($product->serialized(), Response::HTTP_CREATED);
+        }
+        catch(InvalidArgumentException $e) {
+            $em->rollback();
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        catch(ValidatorException $e) {
+            $em->rollback();
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         catch(UniqueConstraintViolationException $e) {
             $logger->notice("New product unique constraint violation");
             $em->rollback();
-            return new JSendFailResponse("Product name already exists, try updating with PUT", Response::HTTP_BAD_REQUEST);
+            return new JSendFailResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         catch(DBALException $e) {
             $em->rollback();
@@ -231,40 +197,5 @@ class ProductController extends AbstractFOSRestController
             $em->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * Tries to find an existing category else creates a new one from new product data.
-     *
-     * @param null $name
-     * @param EntityManagerInterface $em
-     * @return Category|null|object
-     */
-    private function findOrCreateNewCategory($name = null, EntityManagerInterface $em, LoggerInterface $logger) {
-        $logger->info("Trying to find existing Category entity...");
-        $category = $em->getRepository(Category::class)->findOneBy(['name' => $name]);
-        if (empty($category)) {
-
-            $logger->info("Creating new Category...");
-            $category = new Category();
-            $form = $this->createForm(CategoryType::class, $category);
-
-            /* Validate new category */
-            $logger->info("Validating new Category properties...");
-            $form->submit(["name" => $name]);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $em->persist($category);
-                $em->flush();
-
-                $logger->info("Flushed new Category.");
-                return $category;
-            }
-
-            $logger->notice("Failed new Category validation.");
-            return new JSendFailResponse((string) $form->getErrors(true, false), Response::HTTP_BAD_REQUEST);
-        }
-
-        $logger->info("Returned existing category.");
-        return $category;
     }
 }
